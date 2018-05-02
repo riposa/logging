@@ -243,8 +243,7 @@ func (l *Logger) Exception(v error) {
 	}
 }
 
-func (l *Logger) Info(v ...interface{}) {
-	l.logger.SetPrefix("[INFO]")
+func (l *Logger) log(v ...interface{}) {
 	if len(v) > 1 {
 		if str, ok := v[0].(string); ok {
 			for _, w := range l.handler {
@@ -263,48 +262,19 @@ func (l *Logger) Info(v ...interface{}) {
 			l.logger.Print(v...)
 		}
 	}
+}
+
+func (l *Logger) Info(v ...interface{}) {
+	l.logger.SetPrefix("[INFO]")
+	l.log(v...)
 }
 
 func (l *Logger) Error(v ...interface{}) {
 	l.logger.SetPrefix("[Error]")
-	if len(v) > 1 {
-		if str, ok := v[0].(string); ok {
-			for _, w := range l.handler {
-				l.logger.SetOutput(w)
-				l.logger.Printf(str, v[1:]...)
-			}
-		} else {
-			for _, w := range l.handler {
-				l.logger.SetOutput(w)
-				l.logger.Print(v...)
-			}
-		}
-	} else {
-		for _, w := range l.handler {
-			l.logger.SetOutput(w)
-			l.logger.Print(v...)
-		}
-	}
+	l.log(v...)
 }
 
 func (l *Logger) Warning(v ...interface{}) {
 	l.logger.SetPrefix("[WARNING]")
-	if len(v) > 1 {
-		if str, ok := v[0].(string); ok {
-			for _, w := range l.handler {
-				l.logger.SetOutput(w)
-				l.logger.Printf(str, v[1:]...)
-			}
-		} else {
-			for _, w := range l.handler {
-				l.logger.SetOutput(w)
-				l.logger.Print(v...)
-			}
-		}
-	} else {
-		for _, w := range l.handler {
-			l.logger.SetOutput(w)
-			l.logger.Print(v...)
-		}
-	}
+	l.log(v...)
 }
