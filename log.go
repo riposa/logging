@@ -25,6 +25,7 @@ type simpleFileInfo struct {
 
 type fileList []simpleFileInfo
 
+// the logger struct with a series of method for logging, such as: Info(), Warning(), Error(), Exception()
 type Logger struct {
 	logger  *log.Logger
 	handler []io.Writer
@@ -62,6 +63,11 @@ func (f fileList) Less(i, j int) bool {
 	return f[i].modTime.Unix() > f[j].modTime.Unix()
 }
 
+// will return a new rotating file handler
+// path: <string>, log dir path
+// filename: <string>, base name of log file
+// ext: <string>, extension name of log file
+// maxFile: <int>, the max count of rotating files
 func NewRotateHandler(path string, filename string, ext string, maxFile int) *TimeRotateHandler {
 
 	return &TimeRotateHandler{
@@ -101,10 +107,10 @@ func (t *TimeRotateHandler) rotate(dateString string) *os.File {
 func (t *TimeRotateHandler) cleanUpLog() error {
 
 	var (
-		fl fileList
-		rfl fileList
+		fl             fileList
+		rfl            fileList
 		waitRemoveList fileList
-		)
+	)
 
 	dir, err := ioutil.ReadDir(t.path)
 	if err != nil {
@@ -119,8 +125,8 @@ func (t *TimeRotateHandler) cleanUpLog() error {
 			reg, _ := regexp.Compile(t.filename)
 			result := reg.FindString(item.Name())
 			if result != "" {
-				if item.Name() != t.filename + "." + t.ext{
-					if item.ModTime().Unix() > time.Now().Unix() + 60 {
+				if item.Name() != t.filename+"."+t.ext {
+					if item.ModTime().Unix() > time.Now().Unix()+60 {
 						// mod time > current time, illegal log file, will delete. (60 sec to fault-tolerant)
 						rfl = append(rfl, simpleFileInfo{name: item.Name(), modTime: item.ModTime()})
 					} else {
@@ -219,11 +225,13 @@ func (t *TimeRotateHandler) Write(p []byte) (n int, err error) {
 	}
 }
 
+// will initialize the logger with default log format and default output <os.Stdout>
+// you can set the handler list by using <SetHandler>, a rotating handler was already provided above
 func (l *Logger) Init() {
 	l.logger = log.New(os.Stdout, "[INFO]", log.Ldate|log.Ltime|log.Lmicroseconds|log.Llongfile)
 }
 
-func (l *Logger) AddHandler(handler ...io.Writer) {
+func (l *Logger) SetHandler(handler ...io.Writer) {
 	l.handler = handler
 }
 

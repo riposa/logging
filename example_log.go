@@ -4,11 +4,10 @@ import (
 	"errors"
 	"log"
 	"os"
-	"testing"
 	"time"
 )
 
-func TestNewRotateHandler(t *testing.T) {
+func ExampleLogger_Init() {
 	curDir, _ := os.Getwd()
 	h := NewRotateHandler(
 		curDir,
