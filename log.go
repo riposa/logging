@@ -25,10 +25,10 @@ type simpleFileInfo struct {
 
 type fileList []simpleFileInfo
 
-// the logger struct with a series of method for logging, such as: Info(), Warning(), Error(), Exception()
+// the Logger struct with a series of method for logging, such as: Info(), Warning(), Error(), Exception()
 type Logger struct {
-	logger  *log.Logger
-	handler []io.Writer
+	Logger  *log.Logger
+	Handler []io.Writer
 }
 
 type TimeRotateHandler struct {
@@ -63,7 +63,7 @@ func (f fileList) Less(i, j int) bool {
 	return f[i].modTime.Unix() > f[j].modTime.Unix()
 }
 
-// will return a new rotating file handler
+// will return a new rotating file Handler
 // path: <string>, log dir path
 // filename: <string>, base name of log file
 // ext: <string>, extension name of log file
@@ -225,56 +225,56 @@ func (t *TimeRotateHandler) Write(p []byte) (n int, err error) {
 	}
 }
 
-// will initialize the logger with default log format and default output <os.Stdout>
-// you can set the handler list by using <SetHandler>, a rotating handler was already provided above
+// will initialize the Logger with default log format and default output <os.Stdout>
+// you can set the Handler list by using <SetHandler>, a rotating Handler was already provided above
 func (l *Logger) Init() {
-	l.logger = log.New(os.Stdout, "[INFO]", log.Ldate|log.Ltime|log.Lmicroseconds|log.Llongfile)
+	l.Logger = log.New(os.Stdout, "[INFO]", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 }
 
 func (l *Logger) SetHandler(handler ...io.Writer) {
-	l.handler = handler
+	l.Handler = handler
 }
 
 func (l *Logger) Exception(v error) {
-	l.logger.SetPrefix("[ERROR]")
-	for _, w := range l.handler {
-		l.logger.SetOutput(w)
-		l.logger.Printf("\n\tException: %s\n%s", v.Error(), debug.Stack())
+	l.Logger.SetPrefix("[ERROR]")
+	for _, w := range l.Handler {
+		l.Logger.SetOutput(w)
+		l.Logger.Printf("\n\tException: %s\n%s", v.Error(), debug.Stack())
 	}
 }
 
 func (l *Logger) log(v ...interface{}) {
 	if len(v) > 1 {
 		if str, ok := v[0].(string); ok {
-			for _, w := range l.handler {
-				l.logger.SetOutput(w)
-				l.logger.Printf(str, v[1:]...)
+			for _, w := range l.Handler {
+				l.Logger.SetOutput(w)
+				l.Logger.Printf(str, v[1:]...)
 			}
 		} else {
-			for _, w := range l.handler {
-				l.logger.SetOutput(w)
-				l.logger.Print(v...)
+			for _, w := range l.Handler {
+				l.Logger.SetOutput(w)
+				l.Logger.Print(v...)
 			}
 		}
 	} else {
-		for _, w := range l.handler {
-			l.logger.SetOutput(w)
-			l.logger.Print(v...)
+		for _, w := range l.Handler {
+			l.Logger.SetOutput(w)
+			l.Logger.Print(v...)
 		}
 	}
 }
 
 func (l *Logger) Info(v ...interface{}) {
-	l.logger.SetPrefix("[INFO]")
+	l.Logger.SetPrefix("[INFO]")
 	l.log(v...)
 }
 
 func (l *Logger) Error(v ...interface{}) {
-	l.logger.SetPrefix("[Error]")
+	l.Logger.SetPrefix("[ERROR]")
 	l.log(v...)
 }
 
 func (l *Logger) Warning(v ...interface{}) {
-	l.logger.SetPrefix("[WARNING]")
+	l.Logger.SetPrefix("[WARNING]")
 	l.log(v...)
 }
