@@ -168,6 +168,13 @@ func (t *TimeRotateHandler) Write(p []byte) (n int, err error) {
 	sep = string(os.PathSeparator)
 	oldPath = t.path + sep + t.filename + "." + t.ext
 
+	_, e = ioutil.ReadDir(t.path)
+	if e != nil {
+		e = os.MkdirAll(t.path, 0755)
+		if e !=nil {
+			log.Print(e)
+		}
+	}
 	t.cleanUpLog()
 
 	f, err = os.OpenFile(oldPath, os.O_RDONLY, 0755)
